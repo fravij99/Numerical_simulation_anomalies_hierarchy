@@ -1,16 +1,16 @@
 
 
-<h1 align="center"> iGrape anomaly detection </h1> <br>
+<h1 align="center"> NUmerical simulation for understanding anomalies hierarchical structures </h1> <br>
 
 <img align="right" src="https://github.com/fravij99/Vineyard-anomaly-detection/blob/master/photos/igrape.png"  width="270">
 Hey there! 
 
-This is my master thesis repository. 
-This library provides tools for anomaly detection in multi-dimensional datasets came from iGrape projects. It includes methods for data preprocessing, model creation, and anomaly detection using various algorithms.
+This is my master thesis future insights repository. 
+This library provides tools for anomaly detection in multi-dimensional datasets and the generation of new anomalies and datasets by numerical simulation. It includes methods for data preprocessing, model creation, and anomaly detection using various algorithms.
 
 ## Usage
 ### Anomaly Detection Library
-This Python library offers a range of functionalities for anomaly detection in time-series data, particularly tailored for sensor data analysis. It provides tools to preprocess, reshape, and apply various statistical and deep learning models for anomaly detection.
+This Python library offers a range of functionalities for anomaly detection and sinthetic-data creation, particularly tailored for sensor data analysis. It provides tools to preprocess, reshape, and apply various statistical and deep learning models for anomaly detection.
 
 ### detector Class
 * `tuple_prod(tupla)`
@@ -51,7 +51,14 @@ Detect anomalies using deep learning and other machine learning models, respecti
 Reshapes data for all possible shapes and detects anomalies for deep models.
 * `PCA_graph()`
 Generates and saves plots showing PCA results, including variance explained by different numbers of components.
-
+* `random_matrix_loading()`
+Treats random matrix generated in the main in order to verify herarchical relationships between anomaly classes.
+* `random_exp_generator()`
+Generates a synthetic dataset following an exponential distribution.
+* `random_anomalies_generation()`
+Generates some statistical distribution infecting them with noise anomalies on several hierarchic levels
+*`random_big_anomaliy_generation()`
+Generates some statistical distribution infecting them localize gaussian anomalies
 
 ### sheet Class
 * `load_timestamps(path, sens_num)`
