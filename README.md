@@ -2,7 +2,7 @@
 
 <h1 align="center"> NUmerical simulation for understanding anomalies hierarchical structures </h1> <br>
 
-<img align="right" src="https://github.com/fravij99/Vineyard-anomaly-detection/blob/master/photos/igrape.png"  width="270">
+<img align="right" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/hierarchy.png  width="270">
 Hey there! 
 
 This is my master thesis future insights repository. 
