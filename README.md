@@ -2,7 +2,7 @@
 
 <h1 align="center"> Numerical simulation for understanding anomalies hierarchical structures </h1> <br>
 
-<img align="right" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/3d_hierarchy.png  width="440">
+<img align="right" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/3d_hierarchy.png  width="270">
 Hey there! 
 
 This is my master thesis future insights repository. 
