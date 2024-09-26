@@ -2,7 +2,7 @@
 
 <h1 align="center"> Numerical simulation for understanding anomalies hierarchical structures </h1> <br>
 
-<img align="right" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/3d_hierarchy.png  width="270">
+<img align="right" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/images/3d_hierarchy.png  width="270">
 Hey there! 
 
 This is my master thesis future insights repository. 
@@ -60,6 +60,9 @@ Generates some statistical distribution infecting them with noise anomalies on s
 *`random_big_anomaliy_generation()`
 Generates some statistical distribution infecting them localize gaussian anomalies
 
+<img align="center" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/images/random_exp_distribution_demo.png
+  width="370">
+
 ### sheet Class
 * `load_timestamps(path, sens_num)`
 Loads timestamps from an Excel file.
@@ -74,6 +77,7 @@ Finds discontinuities in arrays of timestamps.
 Loads data from an Excel file.
 * `print_all(self)`
 Generates graphs for sensor data.
+
 
 ## Implementation
 An easy implementation of every class is shown in the main.py, statistical_main.py, deep_main.py, sheet.py and printer.py files. The other folders contain the results of anomaly detection for classical models and the temporal plot of every sensor detection. 
