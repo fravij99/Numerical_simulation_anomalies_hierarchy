@@ -92,7 +92,6 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
   def random_anomalies_generation(self, input_size):
     self.randexp=self.random_exp_generator(input_size)
     peak_width = int(0.1 * len(self.randexp))  
-    
     # Random walk generation, filling the trajectory with random zeros to have sporadic random small anomalies
     self.randomwalk = self.random_walk(len(self.randexp), dim=1)
     index_zero=random.sample(range(len(self.randomwalk)), int(len(self.randomwalk)-peak_width))
@@ -100,7 +99,6 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
 
     for i in range(len(self.randexp)):
         self.randexp[i] += self.randomwalk[i]*0.1
-
     return self.randexp
   
   def random_exp_generator(self, input_size):
@@ -117,16 +115,15 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
 
     for i in range(len(self.gauss_err)):
         self.randexp[peak_start + i] += self.gauss_err[i]
-
     return self.randexp
   
+
   def random_complete_anomalies_generation(self, input_size):
     self.randexp = np.exp(np.arange(0, input_size)/(input_size*0.05))
     self.randexp = self.randexp / max(self.randexp)
     peak_width = int(0.1 * len(self.randexp))  
     self.gauss_err = 0.5*np.exp(-np.power((np.arange(0, peak_width)), 2.)/float(peak_width*100))  
     peak_start = 650 #np.random.randint(0, len(self.randexp) - peak_width)
-    
     # Random walk generation, filling the trajectory with random zeros to have sporadic random small anomalies
     self.randomwalk = self.random_walk(len(self.randexp), dim=1)
     index_zero=random.sample(range(len(self.randomwalk)), int(len(self.randomwalk)-peak_width))
@@ -136,8 +133,41 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
         self.randexp[i] += self.randomwalk[i]*0.1
     for i in range(len(self.gauss_err)):
         self.randexp[peak_start + i] += self.gauss_err[i]
-
     return self.randexp
+
+  """This function utilizes a random-distribuited 3D dataset and infects it with anomalies of different scales: 
+     the scale can be set as a parameter of the function"""
+  def introduce_anomalies(self, tensor, num_anomalies, scale_range):
+    X, Y, Z = tensor.shape
+    for _ in tqdm(range(num_anomalies), desc="Infecting the tensor..."):
+        # Scegli la scala dell'anomalia casualmente all'interno di un range dato
+        scale_x = np.random.randint(scale_range[0], scale_range[1])
+        scale_y = np.random.randint(scale_range[0], scale_range[1])
+        scale_z = np.random.randint(scale_range[0], scale_range[1])
+        
+        # Scegli una posizione casuale all'interno del tensore
+        start_x = np.random.randint(0, X - scale_x)
+        start_y = np.random.randint(0, Y - scale_y)
+        start_z = np.random.randint(0, Z - scale_z)
+        
+        # Introduci l'anomalia con un valore differente (ad esempio una distribuzione anomala)
+        anomaly = np.random.normal(loc=10.0, scale=5.0, size=(scale_x, scale_y, scale_z))
+        tensor[start_x:start_x + scale_x, start_y:start_y + scale_y, start_z:start_z + scale_z] = anomaly
+
+    # Visualizzazione: Visualizza più fette per un quadro migliore
+    num_slices = 10  # numero di fette da visualizzare
+    fig, axs = plt.subplots(1, num_slices, figsize=(15, 5))
+    
+    for i in tqdm(range(num_slices), desc="Stamping hitmaps..."):
+        slice_idx = Z // (num_slices + 1) * (i + 1)  # prendi fette equidistanti
+        axs[i].imshow(tensor[:, :, slice_idx], cmap='hot')
+        axs[i].set_title(f"Slice {slice_idx}")
+        
+    plt.savefig('img3.png')
+    plt.show()
+    plt.close()
+    return tensor
+
 
 
   '''Given the desired index from the main, it reshape the df into a tensor as the user wants'''
@@ -412,60 +442,6 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
           file.write(f"{indice}\n")
 
 
-  def stamp_all_shape_anomalies_PCA(self, possible_shapes):
-    variance_txt=[0.8681266505022884, 
-                            0.8632755943305828, 
-                            0.9531381520347932, 
-                            0.9067262065543965, 
-                            0.3582718491728941, 
-                            0.7549863586217296, 
-                            0.6690677713468111]
-    colors = plt.get_cmap('tab10').colors
-    i=0
-    explained_graph_variances=[]
-    plt.figure(figsize=(9,6))
-    plt.rcParams.update({'font.size': 12})
-    with open('final_variances_std_pca_2022.txt', 'a') as variances:
-      for temporal_indices, spatial_indices in tqdm(possible_shapes, desc="Stamping shape anomalies"):
-            self.reshape_linear_tensor(temporal_indices, spatial_indices, standardize=True)
-            explained_graph_variances.append(self.PCA_graph())
-            if self.str_model == 'PCA':
-                if temporal_indices == [42]:
-                    self.variance_components= variance_txt[0]
-                elif temporal_indices == [42, 11]:
-                    self.variance_components = variance_txt[1]
-                elif temporal_indices == [42, 11, 12]:
-                    self.variance_components = variance_txt[2]
-                elif temporal_indices == [42, 11, 16]:
-                    self.variance_component = variance_txt[3]
-                elif temporal_indices == [16, 12]:
-                    self.variance_components = variance_txt[4]
-                elif temporal_indices == [12]:
-                    self.variance_components = variance_txt[5]
-                elif temporal_indices == [16]:
-                    self.variance_components = variance_txt[6]
-                
-                self.create_PCA()
-                self.fit_model()
-                variances.write(f"Explained variance for shape {temporal_indices}_{spatial_indices}: {np.sum(self.model.explained_variance_ratio_)}\n")
-            self.anomalies_stat()
-            self.save_linear_anomaly_indices()
-
-            
-            plt.plot(np.arange(1, 11, 1), explained_graph_variances[i], label=f'{self.temporal_indices}_{self.spatial_indices}', color=colors[i])
-            plt.scatter(np.arange(1, 11, 1), explained_graph_variances[i], edgecolors='black', color=colors[i])
-            plt.axhline(y=variance_txt[i], linestyle='dashed', color=colors[i])
-            plt.xlabel('components', fontsize=15)
-            plt.ylabel('variance explained', fontsize=15)
-            plt.legend()
-
-
-            i=i+1
-    plt.savefig(f'All_variances_in_a_graph_2020_TN')
-    plt.close()
-    self.PCA_graph()
-
-
   def stamp_all_shape_anomalies(self, possible_shapes):
       for temporal_indices, spatial_indices in tqdm(possible_shapes, desc="Stamping shape anomalies"):
             self.reshape_linear_tensor(temporal_indices, spatial_indices, standardize=False)
@@ -494,86 +470,6 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
         self.deep_anomalies()
         self.save_linear_anomaly_indices()
 
-     
-
-  def PCA_graph(self):
-    sns.set_style('darkgrid')
-
-    if self.temporal_indices == [16, 20]:
-        n_components_range = range(1, 51)
-    else:
-        n_components_range = range(1, 11)
-
-    
-    explained_variances = []
-
-    for n_components in n_components_range:
-        pca = PCA(n_components=n_components)
-        pca.fit(self.df)
-        explained_variances.append(sum(pca.explained_variance_ratio_))
-
-    plt.figure(figsize=(15, 6))
-    plt.subplot(1, 2, 1)
-    plt.plot(n_components_range, explained_variances, marker='o')
-    plt.xlabel('Number of Components')
-    plt.ylabel('Total Variance Explained')
-    plt.title('Total Variance Explained by Number of Components')
-    plt.axhline(y=0.95, linestyle='dashed', color='red')
-    plt.savefig(f'graphs_variance_PCA {self.xlsx_path}/shape_{self.temporal_indices}_{self.spatial_indices}')
-    plt.close()
-
-    self.PCA_Ncomponents = next((i for i, valore in enumerate(explained_variances) if valore > 0.95), len(explained_variances) - 1)+1
-    print(self.PCA_Ncomponents, self.temporal_indices, self.spatial_indices)
-
-    pca = PCA(n_components=self.PCA_Ncomponents)
-    pca.fit(self.df)
-    scores = pca.transform(self.df)
-    # devo calcolare i loadings
-    loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
-    t_squared = np.sum((scores[:, :self.PCA_Ncomponents] / np.sqrt(pca.explained_variance_))**2, axis=1)
-    q_residuals = np.sum(self.df**2 - np.dot(scores, loadings.T)**2, axis=1)
-    fig, axs = plt.subplots(1, 3, figsize=(22, 8))
-    plt.rcParams.update({'font.size': 15})
-    axs[0].scatter(scores[:, 0], scores[:, 1], color='lightblue', edgecolors='black')
-    axs[0].set_xlabel(f'PC1: {round(explained_variances[0], 3)*100}%')
-    axs[0].set_ylabel(f'PC2: {round(explained_variances[1]-explained_variances[0], 3)*100}%')
-    axs[0].set_xlim([-4, 4])
-    axs[0].set_ylim([-4, 4])
-    axs[0].axhline(y=0, linestyle='dashed', color='red')
-    axs[0].axvline(x=0, linestyle='dashed', color='red')
-    axs[0].set_title('Scores Plot')
-
-    # ONly for the article
-
-    if self.temporal_indices == [16, 10]:
-      axs[1].plot((range(451)), loadings[:, 0], label='PC1')
-      axs[1].plot((range(451)), loadings[:, 1], label='PC2')
-      axs[1].set_xticks(ticks=(range(451)[::150]), labels=self.timestamp[::150], rotation=20)
-      axs[1].set_xlabel('Time')
-
-
-    else:
-      axs[1].plot(range(self.tuple_prod(self.spatial_indices)), loadings[:, 0], label='PC1')
-      axs[1].plot(range(self.tuple_prod(self.spatial_indices)), loadings[:, 1], label='PC2')
-      axs[1].set_xlabel('Loadings')
-    axs[1].set_ylabel('Variables')
-    axs[1].axhline(y=0, linestyle='dashed', color='red')
-    axs[1].axvline(x=0, linestyle='dashed', color='red')
-    axs[1].set_title('Loadings Plot')
-    axs[1].legend()
-
-    axs[2].scatter(t_squared, q_residuals, color='lightblue', edgecolors='black')
-    axs[2].axhline(y=np.max(q_residuals)*0.95, color='red', linestyle='--', label='Q Residuals 95% Threshold')
-    axs[2].axvline(x=np.max(t_squared)*0.95, color='red', linestyle='--', label='T-squared 95% Threshold')
-    axs[2].set_xlabel('T-squared (t^2)')
-    axs[2].set_ylabel('Q Residuals')
-    axs[2].set_title('T-squared vs Q Residuals')
-    axs[2].legend()
-
-    plt.savefig(f'graphs_variance_PCA {self.xlsx_path}/scores_vs_loadings_shape_{self.temporal_indices}_{self.spatial_indices}')
-    plt.tight_layout()
-    plt.close()
-    return explained_variances
   
   def pruning(self, window):
     self.df=self.df[:-window]

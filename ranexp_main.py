@@ -6,7 +6,7 @@ import pandas as pd
 
 
 
-window=16 # Window represents the sensors
+"""window=16 # Window represents the sensors
 det=detectorlib.detector()
 det.xlsx_path="Anomalies_hierarchy_exp_distribution"
 randexp=[]
@@ -46,5 +46,28 @@ det.stamp_all_shape_anomalies(possible_shapes_pruned)
 det.df=randexp
 print(det.antipruning(window).shape)
 
-det.stamp_all_shape_anomalies(possible_shapes_antipruned)
+det.stamp_all_shape_anomalies(possible_shapes_antipruned)"""
 
+
+X, Y, Z = 100, 200, 300  # Dimensioni del tensore
+data = np.random.normal(loc=0.0, scale=1.0, size=(X, Y, Z)) 
+det=detectorlib.detector()
+# Aggiungi piccole anomalie
+#data2 = det.introduce_anomalies(data, num_anomalies=40, scale_range=[3, 10])
+
+# Aggiungi anomalie di scala più grande
+data_infected=[]
+for i in range(80):
+    data_infected = det.introduce_anomalies(data, num_anomalies=6, scale_range=[10, 20])
+
+
+print(data_infected.max())
+possible_shapes=[
+    ([80], [100, 200, 300]),
+    ([80, 100], [200, 300])
+    ([80, 200], [100, 300])
+    ([80, 300], [200, 100])
+]
+
+det.create_statistical_model('PCA')
+det.stamp_all_shape_anomalies(possible_shapes)
