@@ -50,24 +50,29 @@ det.stamp_all_shape_anomalies(possible_shapes_antipruned)"""
 
 
 X, Y, Z = 100, 200, 300  # Dimensioni del tensore
-data = np.random.normal(loc=0.0, scale=1.0, size=(X, Y, Z)) 
 det=detectorlib.detector()
 # Aggiungi piccole anomalie
 #data2 = det.introduce_anomalies(data, num_anomalies=40, scale_range=[3, 10])
 
 # Aggiungi anomalie di scala più grande
 data_infected=[]
-for i in range(80):
-    data_infected = det.introduce_anomalies(data, num_anomalies=6, scale_range=[10, 20])
+for i in tqdm(range(3), desc='Generating tensors...'):
+    decision=np.random.choice([1, 2])
+    data=np.random.normal(loc=0.0, scale=1.0, size=(X, Y, Z))
+    data=det.introduce_anomalies(data, num_anomalies=6, scale_range=[7, 15], index=i)
+    if decision==1:
+        print(f'Big anomaly at index:{i}')
+        data=det.introduce_anomalies(data, num_anomalies=1, scale_range=[59, 60], index=i)
+    data_infected.append(data)
+    det.hitmaps(X, Y, Z, data, i)
 
-
-print(data_infected.max())
 possible_shapes=[
-    ([80], [100, 200, 300]),
-    ([80, 100], [200, 300])
-    ([80, 200], [100, 300])
-    ([80, 300], [200, 100])
+    ([3], [100, 200, 300]),
+    ([3, 100], [200, 300]),
+    ([3, 200], [100, 300]),
+    ([3, 300], [200, 100])
 ]
-
+det.df=np.array(data_infected)
 det.create_statistical_model('PCA')
+det.xlsx_path='anomalies_cubes.xlsx'
 det.stamp_all_shape_anomalies(possible_shapes)

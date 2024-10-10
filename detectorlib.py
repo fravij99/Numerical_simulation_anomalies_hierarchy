@@ -24,16 +24,6 @@ import matplotlib
 '''In this class we have to set the local variables to assign ath every index of our notations'''
 '''This '''
 class detector():
-
-  '''                                                                                        
-Explained variance for shape [41]_[11, 16, 10]: 0.8681266505022884
-Explained variance for shape [41, 11]_[16, 10]: 0.8632755943305828
-Explained variance for shape [41, 11, 10]_[16]: 0.9531381520347932
-Explained variance for shape [41, 11, 16]_[10]: 0.9067262065543965
-Explained variance for shape [16, 10]_[41, 11]: 0.3582718491728941
-Explained variance for shape [10]_[41, 11, 16]: 0.8149863586217296
-Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
-'''
   
   def tuple_prod(self, tuple):
     prod = 1
@@ -56,6 +46,7 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
         self.df = np.nan_to_num(self.df)
         self.df = (self.df - self.df.min()) / (self.df.max() - self.df.min())
         self.df = self.df.transpose(1, 0, 2)
+
 
   '''This function is need to trat random matrix generated in the main in order to verify herarchical relationships between anomaly classes'''
   def random_matrix_loading(self):
@@ -137,7 +128,7 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
 
   """This function utilizes a random-distribuited 3D dataset and infects it with anomalies of different scales: 
      the scale can be set as a parameter of the function"""
-  def introduce_anomalies(self, tensor, num_anomalies, scale_range):
+  def introduce_anomalies(self, tensor, num_anomalies, scale_range, index):
     X, Y, Z = tensor.shape
     for _ in tqdm(range(num_anomalies), desc="Infecting the tensor..."):
         # Scegli la scala dell'anomalia casualmente all'interno di un range dato
@@ -154,21 +145,31 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
         anomaly = np.random.normal(loc=10.0, scale=5.0, size=(scale_x, scale_y, scale_z))
         tensor[start_x:start_x + scale_x, start_y:start_y + scale_y, start_z:start_z + scale_z] = anomaly
 
-    # Visualizzazione: Visualizza più fette per un quadro migliore
-    num_slices = 10  # numero di fette da visualizzare
-    fig, axs = plt.subplots(1, num_slices, figsize=(15, 5))
-    
-    for i in tqdm(range(num_slices), desc="Stamping hitmaps..."):
-        slice_idx = Z // (num_slices + 1) * (i + 1)  # prendi fette equidistanti
-        axs[i].imshow(tensor[:, :, slice_idx], cmap='hot')
-        axs[i].set_title(f"Slice {slice_idx}")
-        
-    plt.savefig('img3.png')
-    plt.show()
-    plt.close()
     return tensor
 
+  """This function realizes some slices of the starting tensor as matrix NxN slices along all the components"""
+  def hitmaps(self, X, Y, Z, tensor, index):
+    num_slices = 10  # numero di fette da visualizzare
+    fig, axs = plt.subplots(3, num_slices, figsize=(15, 5))
+    
+    for i in tqdm(range(num_slices), desc="Stamping hitmaps..."):
+        slice_idx = Z // (num_slices + 1) * (i + 1)  
+        axs[0][i].imshow(tensor[:, :, slice_idx], cmap='hot')
+        axs[0][i].set_title(f"Slice {slice_idx}")
 
+    for i in tqdm(range(num_slices), desc="Stamping hitmaps..."):
+        slice_idx = Y // (num_slices + 1) * (i + 1)  
+        axs[1][i].imshow(tensor[:, slice_idx, :], cmap='hot')
+        axs[1][i].set_title(f"Slice {slice_idx}")
+
+    for i in tqdm(range(num_slices), desc="Stamping hitmaps..."):
+        slice_idx = X // (num_slices + 1) * (i + 1)  
+        axs[2][i].imshow(tensor[slice_idx, :, :], cmap='hot')
+        axs[2][i].set_title(f"Slice {slice_idx}")
+        
+    plt.savefig(f'img{index}.png')
+    plt.show()
+    plt.close()
 
   '''Given the desired index from the main, it reshape the df into a tensor as the user wants'''
   def reshape_ortogonal_tensor(self, temporal_indices, spatial_indices):
@@ -221,7 +222,7 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
             self.model = LocalOutlierFactor() 
         elif string_model == 'PCA':
             self.str_model=string_model
-            self.model = PCA(n_components=4)
+            self.model = PCA(n_components=2)
         else:
             raise ValueError('Model name not recognized')
       except ValueError as e:
@@ -445,6 +446,7 @@ Explained variance for shape [16]_[10, 11, 41]: 0.6690677713468111
   def stamp_all_shape_anomalies(self, possible_shapes):
       for temporal_indices, spatial_indices in tqdm(possible_shapes, desc="Stamping shape anomalies"):
             self.reshape_linear_tensor(temporal_indices, spatial_indices, standardize=False)
+            print(self.df.shape)
             self.anomalies_stat()
             self.save_linear_anomaly_indices()
 
