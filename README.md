@@ -63,6 +63,15 @@ Generates some statistical distribution infecting them localize gaussian anomali
 <img align="center" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/images/random_exp_distribution_demo.png
   width="370">
 
+<img align="center" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/images/img0.png
+  width="370">
+
+<img align="center" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/images/img1.png
+  width="370">
+
+<img align="center" src=https://github.com/fravij99/Numerical_simulation_anomalies_hierarchy/blob/master/images/img2.png
+  width="370">
+  
 ### sheet Class
 * `load_timestamps(path, sens_num)`
 Loads timestamps from an Excel file.
