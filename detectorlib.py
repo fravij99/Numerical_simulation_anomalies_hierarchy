@@ -126,9 +126,56 @@ class detector():
         self.randexp[peak_start + i] += self.gauss_err[i]
     return self.randexp
 
+  
+  '''This function generates anomalies 1D for every point of view inserted by the user'''
+  def introduce_anomalies_1D(self, tensor, coordinate, num_anomalies):
+    X, Y, Z = tensor.shape
+    if coordinate == 'x':
+        for i in tqdm(range(num_anomalies), desc='Infecting with X anomalies 1D...'):
+            anomaly = np.random.normal(loc=10.0, scale=5.0, size=(X))
+            y, z = np.random.randint(0, Y), np.random.randint(0, Z)
+            tensor[:, y, z] += anomaly  
+            print(f'X anomaly at (y, z)=({y}, {z})')
+    elif coordinate == 'y':
+        for i in tqdm(range(num_anomalies), desc='Infecting with Y anomalies 1D...'):
+            anomaly = np.random.normal(loc=10.0, scale=5.0, size=(Y))
+            x, z = np.random.randint(0, X), np.random.randint(0, Z)
+            tensor[x, :, z] += anomaly 
+            #print(f'Y anomaly at (x, z)=({x}, {z})')
+    elif coordinate == 'z':
+        for i in tqdm(range(num_anomalies), desc='Infecting with Z anomalies 1D...'):
+            anomaly = np.random.normal(loc=10.0, scale=5.0, size=(Z))
+            x, y = np.random.randint(0, X), np.random.randint(0, Y)
+            tensor[x, y, :] += anomaly  
+            #print(f'Z anomaly at (x, y)=({x}, {y})')
+    return tensor
+
+
+
+  '''This function generates anomalies 2D for every point of view inserted by the user'''
+  def introduce_anomalies_2D(self, tensor, coordinate, num_anomalies):
+    X, Y, Z = tensor.shape
+    
+    if coordinate =='x':
+      for i in tqdm(range(num_anomalies), desc='Infecting Tensor with 2D anomalies YZ...'):
+        anomaly=np.random.normal(loc=10, scale=5, size=(Y, Z))
+        anomaly_index=np.random.randint(0, X)
+        tensor[anomaly_index, :, :] += anomaly
+    elif coordinate =='y':
+      for i in tqdm(range(num_anomalies), desc='Infecting Tensor with 2D anomalies XZ...'):
+        anomaly=np.random.normal(loc=10, scale=5, size=(X, Z))
+        anomaly_index=np.random.randint(0, Y)
+        tensor[:, anomaly_index, :] += anomaly
+    elif coordinate =='z':
+      for i in tqdm(range(num_anomalies), desc='Infecting Tensor with 2D anomalies XY...'):
+        anomaly=np.random.normal(loc=10, scale=5, size=(X, Y))
+        anomaly_index=np.random.randint(0, Z)
+        tensor[:, :, anomaly_index] += anomaly
+    return tensor
+
   """This function utilizes a random-distribuited 3D dataset and infects it with anomalies of different scales: 
      the scale can be set as a parameter of the function"""
-  def introduce_anomalies(self, tensor, num_anomalies, scale_range, index):
+  def introduce_anomalies_3D(self, tensor, num_anomalies, scale_range, index):
     X, Y, Z = tensor.shape
     for _ in tqdm(range(num_anomalies), desc="Infecting the tensor..."):
         # Scegli la scala dell'anomalia casualmente all'interno di un range dato
@@ -170,6 +217,7 @@ class detector():
     plt.savefig(f'img{index}.png')
     plt.show()
     plt.close()
+
 
   '''Given the desired index from the main, it reshape the df into a tensor as the user wants'''
   def reshape_ortogonal_tensor(self, temporal_indices, spatial_indices):
@@ -222,7 +270,7 @@ class detector():
             self.model = LocalOutlierFactor() 
         elif string_model == 'PCA':
             self.str_model=string_model
-            self.model = PCA(n_components=2)
+            self.model = PCA(n_components=5)
         else:
             raise ValueError('Model name not recognized')
       except ValueError as e:
@@ -376,7 +424,7 @@ class detector():
 
 
   def anomalies_stat(self):
-    anomaly_percentage = 0.1  # 10%
+    anomaly_percentage = 0.05  # 5%
 
 
     if self.str_model == 'SVM':
