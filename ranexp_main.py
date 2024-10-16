@@ -76,12 +76,18 @@ data = det.introduce_anomalies_2D(data, 'z', z_anomalies)
 
 det.hitmaps(X, Y, Z, data, 0)
 
-possible_shapes=[
+possible_shapes2D=[
     ([100000], [30, 20]),
     ([30], [100000, 20]),
     ([20], [30, 100000])
 ]
+
+possible_shapes1D=[
+    ([100000, 30], [20]),
+    ([30, 20], [100000]),
+    ([20, 100000], [30])
+]
 det.df=np.array(data)
 det.create_statistical_model('PCA')
 det.xlsx_path='anomalies_cubes.xlsx'
-det.stamp_all_shape_anomalies(possible_shapes)
+det.stamp_all_shape_anomalies(possible_shapes2D)
